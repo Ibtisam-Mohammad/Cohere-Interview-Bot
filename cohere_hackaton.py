@@ -43,7 +43,7 @@ uploaded_file = st.file_uploader('Choose your .pdf file', type="pdf")
 input_role = st.text_input(label='Give the role you are applying for',key="input_role")
 def calculate_similarity(a, b):
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-    def correctness_check(question,answer,role = ROLE):
+def correctness_check(question,answer,role = ROLE):
       text_list=[]
       for i in range(3):
         definitions = co.generate(
