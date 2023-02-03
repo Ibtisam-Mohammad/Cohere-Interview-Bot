@@ -38,7 +38,7 @@ if 'preprocess' not in st.session_state:
 
 ############################## Read pdf
 uploaded_file = st.file_uploader('Choose your .pdf file', type="pdf")
-input_role = st.text_input(label='Give the role you are applying for',key="input")
+input_role = st.text_input(label='Give the role you are applying for',key="input_role")
 if (uploaded_file is not None) and (input_role!=''):
   if st.session_state['preprocess']==[]:
     reader = PdfReader("resume_juanjosecarin.pdf")
@@ -182,34 +182,3 @@ if (uploaded_file is not None) and (input_role!=''):
 
 
 
-
-  user=0
-  i=0
-  correctness_list=[]
-  prompt=f'Below is a series of chats between Technical Interviewer and Candidate. In this chat, the Technical Interviewer is conducting a technical interview for a job position. The Technical Interviewer asks the Candidate technical questions related to the job requirements, assesses their technical knowledge, and evaluates their problem-solving skills. The Technical Interviewer speaks professionally and objectively, providing clear and concise feedback. The Technical Interviewer doesn\'t stop asking questions unless the Candidate explicitly ask to stop the interview. The Technical Interviewer never repeats the same questions twice.\n{questions}\nAsk questions from the above given questions to a candidate in a interview form:\nTechnical Interviewer:'
-  while user!='stop':
-    response = co.generate(
-      model='command-xlarge-nightly',
-      prompt=prompt,
-      max_tokens=120,
-      temperature=0.5,
-      k=0,
-      p=0.75,
-      frequency_penalty=0.50,
-      presence_penalty=0.50,
-      stop_sequences=["Answer:", "Candidate:",'\n'],
-      return_likelihoods='GENERATION')
-    print('Technical Interviewer: {}'.format(response.generations[0].text))
-    bot=response.generations[0].text
-    user=input()
-    prompt=prompt+' '+bot+'Candidate: '+user+'\nTechnical Interviewer:'
-    i+=1
-    if i>2:
-      correctness_list.append(correctness_check(question = bot,answer = user, role = ROLE))
-    # print('----\n',prompt,'\n----')
-  print(correctness_list)
-  score=np.sum(correctness_list)/i
-  if score!=0:
-    print(score)
-  else:
-    print('Score not available yet ! Try answering more questions')
