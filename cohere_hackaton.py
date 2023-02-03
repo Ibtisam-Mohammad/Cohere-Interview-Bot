@@ -27,7 +27,7 @@ st.markdown(f'''
     ''',unsafe_allow_html=True) # Setting the sidebar width
 
 # Setting page title
-st.markdown("<h1 style='font-family:Courier; color:Brown; font-size: 70px;text-align: center;'>CoHear</h1>",unsafe_allow_html=True)
+st.markdown("<h1 style='font-family:Courier; color:Brown; font-size: 70px;text-align: center;'>Co:Hear</h1>",unsafe_allow_html=True)
 
 if 'generated' not in st.session_state:
     st.session_state['generated'] = []    # To record the response of the BOT
