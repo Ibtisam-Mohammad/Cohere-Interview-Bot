@@ -10,7 +10,7 @@ co = cohere.Client(API_KEY)
 
 #################------SOME PAGE DESIGNING !--------###################
 st.set_page_config(
-     page_title="CO:BOT", # name of page
+     page_title="CoHear", # name of page
      page_icon="🧊",
      layout="wide",
      initial_sidebar_state="expanded" )
