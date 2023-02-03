@@ -34,13 +34,13 @@ if 'generated' not in st.session_state:
 if 'past' not in st.session_state:
     st.session_state['past'] = []   
 if 'preprocess' not in st.session_state:
-    st.session_state['preprocess'] = []   
+    st.session_state['preprocess'] = 0
 
 ############################## Read pdf
 uploaded_file = st.file_uploader('Choose your .pdf file', type="pdf")
 input_role = st.text_input(label='Give the role you are applying for',key="input_role")
 if (uploaded_file is not None) and (input_role!=''):
-  if st.session_state['preprocess']==[]:
+  if st.session_state['preprocess']==0:
     reader = PdfReader("resume_juanjosecarin.pdf")
     number_of_pages = len(reader.pages)
     page = reader.pages
@@ -117,6 +117,7 @@ if (uploaded_file is not None) and (input_role!=''):
       average_similarity = calculate_similarity(def_1, answer_emb) + calculate_similarity(def_2, answer_emb) + calculate_similarity(def_3, answer_emb)
       average_similarity = average_similarity/3
       return average_similarity
+    st.session_state['preprocess']==1
 
 
 
@@ -136,7 +137,7 @@ if (uploaded_file is not None) and (input_role!=''):
     input_text = st.text_input(label='Answer my questions !:',key="input")
     return input_text
     
-  def query():                     # The query function takes a text input i.e the response of the user
+  def query(txt):                     # The query function takes a text input i.e the response of the user
             # Get the response..........
             response = co.generate(
                   model='command-xlarge-nightly',
@@ -156,16 +157,17 @@ if (uploaded_file is not None) and (input_role!=''):
 
             st.session_state.past.append(user)   # continue to add the USER response to the session state of USER
             st.session_state.generated.append(bot)   # continue to add the BOT response to the session state of BOT
-            st.session_state['pre_prompt'].append(st.session_state['pre_prompt'][-1]+' '+bot+'Candidate: '+user+'\nTechnical Interviewer:')  
+            prompt=st.session_state['pre_prompt'][-1]+' '+bot+'Candidate: '+user+'\nTechnical Interviewer:'
+            st.session_state['pre_prompt'].append(prompt)  
 
             
             if st.session_state['iterator']>2:
               st.session_state['correctness_list'].append(correctness_check(question = bot,answer = user, role = ROLE))
             st.session_state['iterator']+=1
-            
+
             if user=='stop':
-                print(correctness_list)
-                score=np.sum(correctness_list)/i
+                print(st.session_state['correctness_list'])
+                score=np.sum(st.session_state['correctness_list'])/i
                 if score!=0:
                   st.write(score)
                 else:
@@ -179,6 +181,5 @@ if (uploaded_file is not None) and (input_role!=''):
     for i in range(len(st.session_state['generated'])-1, -1, -1):  # Print messages in reverse order of a list i.e newest to oldest
         message(st.session_state["generated"][i], key=str(i))      # Print BOT messages
         message(st.session_state['past'][i], is_user=True, key=str(i) + '_user') # Print USER messages
-
 
 
