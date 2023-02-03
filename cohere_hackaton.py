@@ -65,11 +65,8 @@ def correctness_check(question,answer,role = input_role):
       average_similarity = calculate_similarity(def_1, answer_emb) + calculate_similarity(def_2, answer_emb) + calculate_similarity(def_3, answer_emb)
       average_similarity = average_similarity/3
       return average_similarity
-st.write(input_role)
 if (uploaded_file is not None) and (input_role!=''):
-  st.write('Inside first Loop')
   if st.session_state['preprocess']==0:
-    st.write('Inside Second Loop')
     reader = PdfReader("resume_juanjosecarin.pdf")
     number_of_pages = len(reader.pages)
     page = reader.pages
