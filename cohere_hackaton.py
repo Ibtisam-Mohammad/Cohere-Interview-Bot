@@ -145,7 +145,7 @@ if (uploaded_file is not None) and (input_role!=''):
               # Get the response..........
               response = co.generate(
                     model='command-xlarge-nightly',
-                    prompt=prompt,
+                    prompt=st.session_state['pre_prompt'][-1],
                     max_tokens=120,
                     temperature=0.5,
                     k=0,
