@@ -127,7 +127,6 @@ if (uploaded_file is not None) and (input_role!=''):
 
 
 
-  if st.session_state['preprocess']==1:
     prompt=f'''Below is a series of chats between Technical Interviewer and Candidate. In this chat, the Technical Interviewer is conducting a technical interview for a job position. The Technical Interviewer asks the Candidate technical questions related to the job requirements, assesses their technical knowledge, and evaluates their problem-solving skills. The Technical Interviewer speaks professionally and objectively, providing clear and concise feedback. The Technical Interviewer doesn\'t stop asking questions unless the Candidate explicitly ask to stop the interview. The Technical Interviewer never repeats the same questions twice.\n{questions}\nAsk questions from the above given questions to a candidate in a interview form:\nTechnical Interviewer:'''
 
     if 'pre_prompt' not in st.session_state:   
