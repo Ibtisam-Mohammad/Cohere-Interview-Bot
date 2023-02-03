@@ -35,10 +35,37 @@ if 'past' not in st.session_state:
     st.session_state['past'] = []   
 if 'preprocess' not in st.session_state:
     st.session_state['preprocess'] = 0
+if 'questions' not in st.session_state:
+    st.session_state['questions'] = ''    
 
 ############################## Read pdf
 uploaded_file = st.file_uploader('Choose your .pdf file', type="pdf")
 input_role = st.text_input(label='Give the role you are applying for',key="input_role")
+def calculate_similarity(a, b):
+        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+    def correctness_check(question,answer,role = ROLE):
+      text_list=[]
+      for i in range(3):
+        definitions = co.generate(
+        model='command-xlarge-nightly',
+        prompt=f'{role} Question: {question}?',
+        max_tokens=100,
+        temperature=1,
+        k=0,
+        p=0.75,
+        frequency_penalty=1,
+        presence_penalty=1,
+        stop_sequences=["\n"],
+        return_likelihoods='GENERATION')
+        text_list.append(definitions.generations[0].text)
+
+      (def_1, def_2, def_3) = co.embed(text_list).embeddings
+      answer_emb = (co.embed(list(answer)).embeddings)[0]
+
+      average_similarity = calculate_similarity(def_1, answer_emb) + calculate_similarity(def_2, answer_emb) + calculate_similarity(def_3, answer_emb)
+      average_similarity = average_similarity/3
+      return average_similarity
+
 if (uploaded_file is not None) and (input_role!=''):
   if st.session_state['preprocess']==0:
     reader = PdfReader("resume_juanjosecarin.pdf")
@@ -90,96 +117,72 @@ if (uploaded_file is not None) and (input_role!=''):
       return_likelihoods='GENERATION')
     print('response_technical_q: {}'.format(response_technical_q.generations[0].text))
     questions=response_behaviour_q.generations[0].text+response_technical_q.generations[0].text
-
+    st.session_state['questions']=questions
     print('questions',questions)
 
-    def calculate_similarity(a, b):
-        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-    def correctness_check(question,answer,role = ROLE):
-      text_list=[]
-      for i in range(3):
-        definitions = co.generate(
-        model='command-xlarge-nightly',
-        prompt=f'{role} Question: {question}?',
-        max_tokens=100,
-        temperature=1,
-        k=0,
-        p=0.75,
-        frequency_penalty=1,
-        presence_penalty=1,
-        stop_sequences=["\n"],
-        return_likelihoods='GENERATION')
-        text_list.append(definitions.generations[0].text)
-
-      (def_1, def_2, def_3) = co.embed(text_list).embeddings
-      answer_emb = (co.embed(list(answer)).embeddings)[0]
-
-      average_similarity = calculate_similarity(def_1, answer_emb) + calculate_similarity(def_2, answer_emb) + calculate_similarity(def_3, answer_emb)
-      average_similarity = average_similarity/3
-      return average_similarity
+    
     st.session_state['preprocess']==1
 
 
 
 
+  if st.session_state['preprocess']==1:
+    prompt=f'''Below is a series of chats between Technical Interviewer and Candidate. In this chat, the Technical Interviewer is conducting a technical interview for a job position. The Technical Interviewer asks the Candidate technical questions related to the job requirements, assesses their technical knowledge, and evaluates their problem-solving skills. The Technical Interviewer speaks professionally and objectively, providing clear and concise feedback. The Technical Interviewer doesn\'t stop asking questions unless the Candidate explicitly ask to stop the interview. The Technical Interviewer never repeats the same questions twice.\n{questions}\nAsk questions from the above given questions to a candidate in a interview form:\nTechnical Interviewer:'''
 
-  prompt=f'''Below is a series of chats between Technical Interviewer and Candidate. In this chat, the Technical Interviewer is conducting a technical interview for a job position. The Technical Interviewer asks the Candidate technical questions related to the job requirements, assesses their technical knowledge, and evaluates their problem-solving skills. The Technical Interviewer speaks professionally and objectively, providing clear and concise feedback. The Technical Interviewer doesn\'t stop asking questions unless the Candidate explicitly ask to stop the interview. The Technical Interviewer never repeats the same questions twice.\n{questions}\nAsk questions from the above given questions to a candidate in a interview form:\nTechnical Interviewer:'''
-
-  if 'pre_prompt' not in st.session_state:   
-        st.session_state['pre_prompt']=[prompt]
-  if 'iterator' not in st.session_state:   
-        st.session_state['iterator']=0
-  if 'correctness_list' not in st.session_state:   
-        st.session_state['correctness_list']=[]
-
-
-  def get_text():
-    input_text = st.text_input(label='Answer my questions !:',key="input")
-    return input_text
-    
-  def query(txt):                     # The query function takes a text input i.e the response of the user
-            # Get the response..........
-            response = co.generate(
-                  model='command-xlarge-nightly',
-                  prompt=prompt,
-                  max_tokens=120,
-                  temperature=0.5,
-                  k=0,
-                  p=0.75,
-                  frequency_penalty=0.50,
-                  presence_penalty=0.50,
-                  stop_sequences=["Answer:", "Candidate:",'\n'],
-                  return_likelihoods='GENERATION')
-
-            bot=response.generations[0].text
-            user=get_text()
-            # prompt=st.session_state['pre_prompt'][-1]+' '+bot+'Candidate: '+user+'\nTechnical Interviewer:'
-
-            st.session_state.past.append(user)   # continue to add the USER response to the session state of USER
-            st.session_state.generated.append(bot)   # continue to add the BOT response to the session state of BOT
-            prompt=st.session_state['pre_prompt'][-1]+' '+bot+'Candidate: '+user+'\nTechnical Interviewer:'
-            st.session_state['pre_prompt'].append(prompt)  
-
-            
-            if st.session_state['iterator']>2:
-              st.session_state['correctness_list'].append(correctness_check(question = bot,answer = user, role = ROLE))
-            st.session_state['iterator']+=1
-
-            if user=='stop':
-                print(st.session_state['correctness_list'])
-                score=np.sum(st.session_state['correctness_list'])/i
-                if score!=0:
-                  st.write(score)
-                else:
-                  st.write('Score not available yet ! Try answering more questions')
-            return response.generations[0].text  # Format the response
+    if 'pre_prompt' not in st.session_state:   
+          st.session_state['pre_prompt']=[prompt]
+    if 'iterator' not in st.session_state:   
+          st.session_state['iterator']=0
+    if 'correctness_list' not in st.session_state:   
+          st.session_state['correctness_list']=[]
 
 
-  output = query()
+    def get_text():
+      input_text = st.text_input(label='Answer my questions !:',key="input")
+      return input_text
+      
+    def query(txt):                     # The query function takes a text input i.e the response of the user
+              # Get the response..........
+              response = co.generate(
+                    model='command-xlarge-nightly',
+                    prompt=prompt,
+                    max_tokens=120,
+                    temperature=0.5,
+                    k=0,
+                    p=0.75,
+                    frequency_penalty=0.50,
+                    presence_penalty=0.50,
+                    stop_sequences=["Answer:", "Candidate:",'\n'],
+                    return_likelihoods='GENERATION')
 
-  if st.session_state['generated']:   # i.e if the BOT responds
-    for i in range(len(st.session_state['generated'])-1, -1, -1):  # Print messages in reverse order of a list i.e newest to oldest
-        message(st.session_state["generated"][i], key=str(i))      # Print BOT messages
-        message(st.session_state['past'][i], is_user=True, key=str(i) + '_user') # Print USER messages
+              bot=response.generations[0].text
+              user=get_text()
+              # prompt=st.session_state['pre_prompt'][-1]+' '+bot+'Candidate: '+user+'\nTechnical Interviewer:'
 
+              st.session_state.past.append(user)   # continue to add the USER response to the session state of USER
+              st.session_state.generated.append(bot)   # continue to add the BOT response to the session state of BOT
+              prompt=st.session_state['pre_prompt'][-1]+' '+bot+'Candidate: '+user+'\nTechnical Interviewer:'
+              st.session_state['pre_prompt'].append(prompt)  
+
+              
+              if st.session_state['iterator']>2:
+                st.session_state['correctness_list'].append(correctness_check(question = bot,answer = user, role = ROLE))
+              st.session_state['iterator']+=1
+
+              if user=='stop':
+                  print(st.session_state['correctness_list'])
+                  score=np.sum(st.session_state['correctness_list'])/i
+                  if score!=0:
+                    st.write(score)
+                  else:
+                    st.write('Score not available yet ! Try answering more questions')
+              return response.generations[0].text  # Format the response
+
+
+    output = query()
+
+    if st.session_state['generated']:   # i.e if the BOT responds
+      for i in range(len(st.session_state['generated'])-1, -1, -1):  # Print messages in reverse order of a list i.e newest to oldest
+          message(st.session_state["generated"][i], key=str(i))      # Print BOT messages
+          message(st.session_state['past'][i], is_user=True, key=str(i) + '_user') # Print USER messages
 
