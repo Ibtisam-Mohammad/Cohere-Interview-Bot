@@ -136,7 +136,7 @@ if (uploaded_file is not None) and (input_role!=''):
     input_text = st.text_input(label='Answer my questions !:',key="input")
     return input_text
     
-  def query(txt):                     # The query function takes a text input i.e the response of the user
+  def query():                     # The query function takes a text input i.e the response of the user
             # Get the response..........
             response = co.generate(
                   model='command-xlarge-nightly',
