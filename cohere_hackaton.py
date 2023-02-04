@@ -3,7 +3,7 @@ import cohere
 import numpy as np
 import streamlit as st
 from streamlit_chat import message
-from amazon import set_background #---------------->>>>>>>>>>>> CHANGE NAME
+from amazon import set_background 
 from PyPDF2 import PdfReader
 API_KEY='qKNifTO0EkVWeXAaVzfnnDROVaDZmSbQL5ILgMmc'
 co = cohere.Client(API_KEY)
@@ -38,9 +38,9 @@ if 'preprocess' not in st.session_state:
 if 'questions' not in st.session_state:
     st.session_state['questions'] = ''    
 
-############################## Read pdf
 uploaded_file = st.file_uploader('Choose your .pdf file', type="pdf")
 input_role = st.text_input(label='Give the role you are applying for',key="input_role")
+##### Similarity check #####
 def calculate_similarity(a, b):
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 def correctness_check(question,answer,role = input_role):
@@ -67,6 +67,7 @@ def correctness_check(question,answer,role = input_role):
       return average_similarity
 if (uploaded_file is not None) and (input_role!=''):
   if st.session_state['preprocess']==0:
+     #####Read pdf ######
     reader = PdfReader(uploaded_file)
     number_of_pages = len(reader.pages)
     page = reader.pages
@@ -118,10 +119,7 @@ if (uploaded_file is not None) and (input_role!=''):
     st.session_state['questions']=questions
     print('questions',questions)
 
-    
     st.session_state['preprocess']==1
-
-
 
 
     prompt=f'''Below is a series of chats between Technical Interviewer and Candidate. In this chat, the Technical Interviewer is conducting a technical interview for a job position. The Technical Interviewer asks the Candidate technical questions related to the job requirements, assesses their technical knowledge, and evaluates their problem-solving skills. The Technical Interviewer speaks professionally and objectively, providing clear and concise feedback. The Technical Interviewer doesn\'t stop asking questions unless the Candidate explicitly ask to stop the interview. The Technical Interviewer never repeats the same questions twice.\n{questions}\nAsk questions from the above given questions to a candidate in a interview form:\nTechnical Interviewer:'''
