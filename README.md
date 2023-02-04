@@ -1,4 +1,4 @@
-# CO:HEAR
+# ![CO:HEAR](https://github.com/Ibtisam-Mohammad/Cohere-Interview-Bot/blob/master/logo%20arch.jpg)
 
 _A chatbot that helps you prepare for behavior and technical interviews by analyzing your resume and job description._
 ## Introduction
@@ -16,6 +16,12 @@ To get started, you will need to upload your resume and job description. The cha
 ## Usage
 
 To use the chatbot, simply run [Streamlit](https://cohear.streamlit.app/) and follow the prompts to upload your resume and job description. You can then start chatting with the chatbot to prepare for your interview.
+
+## Future Work
+- Add voice based interaction (most of the work done, just stuck!)
+- Make it fast - Due to _many_ API calls it is slow right now
+- Add question answer source for faster retrieval (Used a machine learning Q&A dataset - but wanted to generalize it for all jobs)
+- A better frontend
 ## Limitations
 - Hallucinations - can deviate from the topic !
 - Please note that the chatbot is not a substitute for professional interview preparation and is intended for educational and informational purposes only.
