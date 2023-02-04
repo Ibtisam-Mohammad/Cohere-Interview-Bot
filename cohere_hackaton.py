@@ -67,7 +67,7 @@ def correctness_check(question,answer,role = input_role):
       return average_similarity
 if (uploaded_file is not None) and (input_role!=''):
   if st.session_state['preprocess']==0:
-    reader = PdfReader("resume_juanjosecarin.pdf")
+    reader = PdfReader(uploaded_file)
     number_of_pages = len(reader.pages)
     page = reader.pages
 
