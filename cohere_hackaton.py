@@ -2,6 +2,8 @@
 import cohere
 import numpy as np
 import streamlit as st
+from audiorecorder import audiorecorder
+import whisper
 from streamlit_chat import message
 from amazon import set_background #---------------->>>>>>>>>>>> CHANGE NAME
 from PyPDF2 import PdfReader
@@ -35,6 +37,8 @@ if 'past' not in st.session_state:
     st.session_state['past'] = []   
 if 'preprocess' not in st.session_state:
     st.session_state['preprocess'] = 0
+if 'model' not in st.session_state:
+    st.session_state['model'] = whisper.load_model("base.en")
 if 'questions' not in st.session_state:
     st.session_state['questions'] = ''    
 
@@ -67,7 +71,8 @@ def correctness_check(question,answer,role = input_role):
       return average_similarity
 if (uploaded_file is not None) and (input_role!=''):
   if st.session_state['preprocess']==0:
-    reader = PdfReader("resume_juanjosecarin.pdf")
+    #Read Resume
+    reader = PdfReader(uploaded_file)
     number_of_pages = len(reader.pages)
     page = reader.pages
 
@@ -135,7 +140,8 @@ if (uploaded_file is not None) and (input_role!=''):
 
 
     def get_text():
-      input_text = st.text_input(label='Answer my questions !:',key="input")
+      audio = audiorecorder("Click to record your answer:", "Recording...")
+      input_text = st.session_state['model'].transcribe(audio)
       return input_text
       
     def query():                     # The query function takes a text input i.e the response of the user
