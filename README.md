@@ -4,9 +4,10 @@ _A chatbot that helps you prepare for behavior and technical interviews by analy
 ## Introduction
 
 This repository contains code for a chatbot that helps job seekers prepare for interviews by analyzing their resume and job description. The chatbot is built using Cohere's language model, which has been fine-tuned (zero-shot) for the specific task of interview preparation.
-##Getting Started
+## Getting Started
 
-To get started, you will need to upload your resume and job description. The chatbot will then analyze the text and generate questions and answers based on your experience and the requirements of the job. It will generate first 3 questions based on the Resume and 7 based on the job role
+To get started, you will need to upload your resume and job description. The chatbot will then analyze the text and generate questions and answers based on your experience and the requirements of the job. It will generate first 3 questions based on the Resume and 7 based on the job role.
+![App architecture](https://github.com/Ibtisam-Mohammad/Cohere-Interview-Bot/blob/master/Architecture.png)
 ## Features
 - Generates questions based on your resume and job description
 - Provides answers to common interview questions
